@@ -1,3 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from .forms import *
 
-# Create your views here.
+def registro(request):
+
+	form=RegistroForm(request.POST, request.FILES)
+	print(form)
+
+
+	return render (request,"registro.html",{"form":form} )

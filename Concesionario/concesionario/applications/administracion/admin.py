@@ -5,15 +5,15 @@ from .models import *
 class CargaAdmin(admin.ModelAdmin):
     list_display = (
         'id_cargas',
-        'usuario_concesionario',
+        'usuario',
         'coche',
         'created_at',
         'updated_at',
     )
 
-    search_fields = ('usuario_concesionario','coche')
+    search_fields = ('usuario','coche')
 
-    list_filter = ('usuario_concesionario','coche','created_at','updated_at',)
+    list_filter = ('usuario','coche','created_at','updated_at',)
 
 admin.site.register(Carga, CargaAdmin)
 
@@ -21,7 +21,7 @@ admin.site.register(Carga, CargaAdmin)
 class ReservaAdmin(admin.ModelAdmin):
     list_display = (
         'id_reserva',
-        'usuario_registro',
+        'usuario',
         'coche',
         'fecha_inicio_reserva',
         'fecha_fin_reserva',
@@ -29,8 +29,8 @@ class ReservaAdmin(admin.ModelAdmin):
         'updated_at',
     )
 
-    search_fields = ('usuario_registro','coche')
+    search_fields = ('usuario','coche')
 
-    list_filter = ('usuario_registro','coche','fecha_inicio_reserva','fecha_fin_reserva',)
+    list_filter = ('usuario','coche','fecha_inicio_reserva','fecha_fin_reserva',)
 
 admin.site.register(Reserva, ReservaAdmin)

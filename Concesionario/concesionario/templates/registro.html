@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div id="registro" class="card">
+
+    <form action="" enctype="multipart/form-data" method="POST">
+        {%csrf_token %}                            
+            <div class="grid-container">
+                <div class="grid-x grid-padding-x">
+                    <div class="medium-6 cell" id="registrodni">
+                        <label>DNI:
+                                {{form.dni}}
+                        </label>
+                        <p id="errores">
+                            <span id="errorDni"></span>
+                        </p>
+                    </div>
+                    <div class="medium-6 cell" id="registronombre">
+                        <label>Nombre:
+                                {{form.nombre}}
+                        </label>
+                        <p id="errores">
+                            <span id="errorNombre"></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+             <div class="grid-container">
+                <div class="grid-x grid-padding-x">
+                    <div class="medium-6 cell" id="registroPrimerApellido">
+                        <label>Primer Apellido:
+                                {{form.primer_apellido}}
+                        </label>
+                        <p id="errores">
+                            <span id="errorPrimerApellido"></span>
+                        </p>
+                    </div>
+                    <div class="medium-6 cell" id="registroSegundoApellido">
+                        <label>Segundo Apellido:
+                                {{form.segundo_apellido}}
+                        </label>
+                        <p id="errores">
+                            <span id="errorSegundoApellido"></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-container">
+                <div class="grid-x grid-padding-x">
+                    <div class="medium-12 cell" id="regitroEmail">
+                        <label>Email
+                                {{form.email}}
+                        </label>
+                        <p id="errores">
+                            <span id="errorEmail"></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+             <div class="grid-container">
+                <div class="grid-x grid-padding-x">
+                    <div class="medium-12 cell" id="registroUsername">
+                        <label>Usuario:
+                                {{form.username}}
+                        </label>
+                        <p id="errores">
+                            <span id="errorUserName"></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+             <div class="grid-container">
+                <div class="grid-x grid-padding-x">
+                    <div class="medium-12 cell" id="registroPass">
+                        <label>Contraseña:
+                                {{form.passw}}
+                        </label>
+                        <p id="errores">
+                            <span id="errorpassw"></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+
+
+
+
+
+        <p align="right">
+            <button class="button primary" id="enviar" type="submit" style="margin-right:10%; border-radius:5px">Enviar
+            </button>
+        </p>
+    </form>
+</div>
+
+{% endblock %}
