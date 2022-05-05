@@ -1,6 +1,29 @@
 {% extends "base.html" %}
 {% load static %}
 {% load crispy_forms_tags %}
+
+{% block head %}
+    {% if user.is_authenticated %}
+        {% for usu in usuario %}
+            {% if usu.usuario.username == user.username %}
+                {% if usu.concesionario == null %}
+                    {% include 'includes/header-reserva.html' %}
+                {% else %}
+                    {% include 'includes/header-conce.html' %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+
+        {% if user.is_staff %}
+            {% include 'includes/header-admin.html' %}
+        {% endif %}
+
+    {% else %}
+        {% include 'includes/header-base.html' %}
+    {% endif %}
+{% endblock head %}
+    
+
 {% block content %}
 
 <div id="registro" class="card">
@@ -9,15 +32,16 @@
       
         {%csrf_token %} 
 
-            <div id="contenderoRegistro">
-                <div class="grid-container">
-                    <div class="grid-x grid-padding-x">
-                        <div class="medium-12 cell" id="regitroUser">
-                            {{form|crispy}}
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {% for field in form %}
+                <p>
+                    {{ field.label_tag }}
+                    <br>
+                    {{ field }}
+                        {% for error in field.errors %}
+                            <p style="color: red">{{ error }}</p>
+                        {% endfor %}
+                </p>
+            {% endfor %} 
 
         <hr/> 
 
@@ -65,7 +89,7 @@
              
 
         <p align="right">
-            <button class="button primary" id="enviar" type="submit" style="margin-right:10%; border-radius:5px">Enviar
+            <button class="button success" id="enviar" type="submit" style="margin-right:10%; border-radius:5px">Enviar
             </button>
         </p>
     </form>

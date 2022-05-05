@@ -13,4 +13,8 @@ class RegistroForm(forms.Form):
 	
 
 class CreacionUser(UserCreationForm):
-	 email = forms.EmailField(required=True,)
+	email = forms.EmailField(max_length=200,)
+
+	class Meta:
+		model = User
+		fields = ('username', 'email', 'password1', 'password2')

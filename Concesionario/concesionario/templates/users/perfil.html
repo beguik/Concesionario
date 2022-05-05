@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Perfil{% endblock title %}
+
+
+{% block content %}
+    {% if user.is_authenticated %}
+        {% for usu in usuario %}
+            {% if usu.usuario.username == user.username %}
+                {% if usu.concesionario == null %}
+                    {% include 'includes/header-reserva.html' %}
+                {% else %}
+                    {% include 'includes/header-conce.html' %}
+                {% endif %}
+                <div class="grid-x">
+                    <h1 class="cell" style="text-align:center;">Hola {{ user.username }}</h1>
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        {% if user.is_staff %}
+            {% include 'includes/header-admin.html' %}
+            <div class="grid-x">
+                <h1 class="cell" style="text-align:center;">Hola {{ user.username }}</h1>
+            </div>
+
+        {% endif %}
+
+    {% else %}
+        {% include 'includes/header-base.html' %}
+        <h1>Perfil</h1>
+    {% endif %}
+{% endblock content %}

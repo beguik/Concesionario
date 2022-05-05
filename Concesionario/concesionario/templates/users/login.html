@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block title %}Inicia Sesión{% endblock %}
+
+{% block head %}
+    {% if user.is_authenticated %}
+        {% for usu in usuario %}
+            {% if usu.usuario.username == user.username %}
+                {% if usu.concesionario == null %}
+                    {% include 'includes/header-reserva.html' %}
+                {% else %}
+                    {% include 'includes/header-conce.html' %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+
+        {% if user.is_staff %}
+            {% include 'includes/header-admin.html' %}
+        {% endif %}
+
+    {% else %}
+        {% include 'includes/header-base.html' %}
+    {% endif %}
+{% endblock head %}
+
+
+{% block content %}
+  <div class="grid-x">
+    <h1 class="cell" style="text-align:center;">Inicio de Sesión</h1>
+    <form method="POST" style="display: block;margin-left: auto;margin-right: auto;width: 25%;" class="grid-x grid-margin-x">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" name="submit" class="submit success button" value="Iniciar Sesión" style="border-radius:5px">
+    </form>
+
+    <div class="callout success" style="display: block;margin-left: auto;margin-right: auto;width: 25%;" class="grid-x grid-margin-x">
+      <h5>Inicio de Sesión por Certificado Digital</h5>
+      <p>Si dispone de un certificado digital, puede usarlo para iniciar sesión.</p>
+      <div class="medium-12 cell" style="text-align:right;">
+        <a class="success button" href="#" style="text-align:right;border-radius:5px">Iniciar Sesión</a>
+      </div>
+    </div>
+    
+    <hr class="medium-12 cell" style="height:1px;border:none;color:#333;background-color:#333; margin-top:80px;">
+    <h2 class="cell" style="text-align:center;margin-top:10px">Si no esta registrado</h2>
+    <div class="medium-12 cell" style="display: block;margin-left: auto;margin-right: auto;width: 10%; margin-top:10px" class="grid-x grid-margin-x">
+      <a class="success button medium-12 cell" href="{% url 'app_usuarios:registro' %}" style="text-align:center;font-size: 15px;font-weight: bold;border-radius:5px">Registrarse</a>
+    </div>
+    
+  </div>
+{% endblock content %}
+
+style="margin-right:10%; border-radius:5px"

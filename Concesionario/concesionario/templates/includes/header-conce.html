@@ -1,0 +1,32 @@
+{% load static %}
+    <div class="top-bar" style="margin-bottom: 20px">
+        <div class="top-bar-left">
+        <ul class="dropdown menu" data-dropdown-menu>
+            <li style="font-size:20px; font-weight:bold;"><a href="{% url 'app_usuarios:Inicio' %}">INICIO</a></li>
+            <li><a href="#">Añadir</a></li>
+        </ul>
+        </div>
+        <div class="top-bar-right">
+            <ul class="dropdown menu" data-dropdown-menu>
+                <li>
+                    <a href="#"><img src="{% static 'img/perfil.png' %}" width=50 height="50" style='border-radius: 50%;'></a>
+                    {% if user.is_authenticated %}
+                        <ul class="menu vertical">
+                            <li class="menu-text">{{user.username}}</li>
+                            <li><a href="#">Mis cargas</a></li>
+                            <li><a href="{% url 'app_usuarios:logout' %}">Cerrar Sesión</a></li>
+                        </ul>
+                    {% else %}
+                        <ul class="menu vertical">
+                            <li><a href="{% url 'app_usuarios:login' %}">Iniciar Sesión</a></li>
+                            <li><a href="{% url 'app_usuarios:registro' %}">Registrarse</a></li>
+                        </ul>
+                    {% endif %}
+                  </li>
+            </ul>
+        </div>
+    </div>
+
+
+
+

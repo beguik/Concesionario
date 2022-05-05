@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect
 from django.views.generic import View
-#from django.contrib.auth.forms import UserCreationForm
 from .forms import *
-from django.contrib.auth import login
+from .models import *
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.views import LoginView, LogoutView
+from django.views.generic import ListView
 from django.contrib import messages
 
 
@@ -12,11 +14,11 @@ class Registro(View):
 
 		form=CreacionUser()
 		formDatos=RegistroForm()
-		return render(request,"registro.html",{"form":form, "formDatos":formDatos})
+		return render(request,"users/registro.html",{"form":form, "formDatos":formDatos})
 
 	def post(self,request):
 		
-		form=UserCreationForm(request.POST)
+		form=CreacionUser(request.POST)
 		formDatos=RegistroForm(request.POST,request.FILES)
 		print(form)
 		print(formDatos)
@@ -31,17 +33,21 @@ class Registro(View):
 				segundo_apellido=datos['segundo_apellido']
 
 				if validarDni(dni):
-					user=form.save()
 
+					if Usuario.objects.filter(dni=dni).exists():
+						mensaje="El DNI introducido ya existe"
+						return render(request,"users/registro.html",{"form":form,"formDatos":formDatos, "mensaje":mensaje})
+
+					user=form.save()
 					nuevo=Usuario(usuario=user, dni=dni, nombre=nombre, primer_apellido=primer_apellido, segundo_apellido=segundo_apellido)
 					nuevo.save()
 				
 					login(request, user)
 			
-					return redirect('Inicio')
+					return redirect('/perfil/')
 				else: 
 					mensaje="Compruebe que el dni sea correcto"
-					return render(request,"registro.html",{"form":form,"formDatos":formDatos, "mensaje":mensaje})
+					return render(request,"users/registro.html",{"form":form,"formDatos":formDatos, "mensaje":mensaje})
 
 		
 		else:
@@ -49,15 +55,24 @@ class Registro(View):
 			
 			for msg in form.error_messages:
 				messages.error(request,form.error_messages[msg])
-			return render(request,"registro.html",{"form":form,"formDatos":formDatos})
+			return render(request,"users/registro.html",{"form":form,"formDatos":formDatos})
+
+class SignInView(LoginView):
+    template_name = 'users/login.html'
+
+class SignOutView(LogoutView):
+    pass
 
 
+class Perfil(ListView):
+    model=Usuario
+    context_object_name='usuario'
+    template_name='users/perfil.html'
 
 
 def home(request):
 	
 	return render (request,"base.html", )
-
 
 
 #Función para validar dni
@@ -80,3 +95,5 @@ def validarDni(dni):
 			return False
 		else:
 			return True
+
+
