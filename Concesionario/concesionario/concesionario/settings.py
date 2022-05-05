@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'applications.users',
     #aplicaciones de terceros
      'phonenumber_field',
+     'crispy_forms',
+     'crispy_forms_foundation',
 
 ]
 
@@ -139,3 +141,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+
+
+CRISPY_TEMPLATE_PACK = 'foundation-5'

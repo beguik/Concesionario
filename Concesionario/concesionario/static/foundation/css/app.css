@@ -6,5 +6,28 @@
 	border: solid 2px #919191;
 	padding: 30px;
 }
+#hint_id_username{
+	display: none;
+}
 
+#hint_id_password1{
+	display: none;
+}
 
+#hint_id_password2{
+	display: none;
+}
+
+#hint_id_password2.holder.error{
+	color: red;
+}
+#contenderoRegistro{
+width: 45%;
+margin: auto;
+
+}
+
+#errores {
+	font-size:10px;
+	color: #FF0000;;
+}          
