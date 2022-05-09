@@ -23,21 +23,19 @@
     {% endif %}
 {% endblock head %}
     
-
 {% block content %}
+
 
 <div id="registro" class="card">
 
-    <form action="" enctype="multipart/form-data" method="POST">
+    <form action="../registro/" enctype="multipart/form-data" method="POST">
       
         {%csrf_token %} 
 
-
         <table>
-
             <tr >
                 {% for field in form %}
-                    <th style="text-align:left" >
+                    <th style="text-align:left">
                         {{ field.label_tag }}
                         {{ field }}
                     </th>
@@ -48,14 +46,13 @@
                 {% endfor %}
             </tr>
         </table>
-           
      
 
             <div class="grid-container">
                 <div class="grid-x grid-padding-x">
                     <div class="medium-6 cell" >
                         <label>DNI:
-                                {{formDatos.dni}}
+                                <input type="text" id="dni"name="dni" value={{DNI}} readonly>
                         </label>
                         <p id="errores">
                             <span id="errorDni">{{mensaje}}</span>
@@ -63,7 +60,7 @@
                     </div>
                     <div class="medium-6 cell">
                         <label>Nombre:
-                                {{formDatos.nombre}}
+                            <input type="text" id="nombre"name="nombre" value={{Nombre}} readonly>
                         </label>
                         <p id="errores">
                             <span id="errorNombre"></span>
@@ -76,7 +73,7 @@
                 <div class="grid-x grid-padding-x">
                     <div class="medium-6 cell">
                         <label>Primer Apellido:
-                                {{formDatos.primer_apellido}}
+                            <input  type="text" id="apellido"name="primer_apellido" value={{apellido1}} readonly>
                         </label>
                         <p id="errores">
                             <span id="errorPrimerApellido"></span>
@@ -84,7 +81,7 @@
                     </div>
                     <div class="medium-6 cell">
                         <label>Segundo Apellido:
-                                {{formDatos.segundo_apellido}}
+                            <input type="text" id="apellido2"name="segundo_apellido" value={{apellido2}} readonly>
                         </label>
                         <p id="errores">
                             <span id="errorSegundoApellido"></span>
@@ -95,7 +92,7 @@
              
 
         <p align="right">
-            <button class="button success" id="enviar" type="submit" style="margin-right:10%; border-radius:5px">Enviar
+            <button class="button success" id="enviar" type="submit" herf="../registro/" style="margin-right:10%; border-radius:5px">Enviar
             </button>
         </p>
     </form>

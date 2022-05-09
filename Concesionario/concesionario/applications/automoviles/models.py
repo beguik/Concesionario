@@ -74,11 +74,11 @@ class Coche(models.Model):
 
     matricula = models.CharField('MATRICULA', unique=True, primary_key=True, max_length=7)
     modelo = models.ForeignKey(Modelo, verbose_name=("Modelo"), on_delete=models.CASCADE)
+    
     precio_original = models.DecimalField('Precio Original', max_digits=13, decimal_places=6)
-    descuento = models.DecimalField('Descuento', max_digits=13, decimal_places=6)
-    precio_final = models.DecimalField('Precio Final', max_digits=13, decimal_places=6)
+    descuento = models.DecimalField('Descuento', max_digits=13, decimal_places=6)    
     localizacion = models.CharField('Localización', max_length=2, choices=PROVINCE_CHOICES)
-    tipo = models.OneToOneField(TiposCoches, verbose_name=("Tipo"), on_delete=models.CASCADE)
+    tipo = models.ForeignKey(TiposCoches, verbose_name=("Tipo"), on_delete=models.CASCADE)
     kilometros = models.FloatField('Kilometros')
     fecha_matriculacion = models.DateField('Fecha Matriculación', auto_now=False, auto_now_add=False)
     potencia = models.FloatField('Potencia')
@@ -93,6 +93,16 @@ class Coche(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     updated_at = models.DateTimeField(auto_now_add=True, null=True)
 
+    
+
+    def _get_importe(self):
+
+      return self.precio_original-((self.precio_original*self.descuento)/100)
+
+    precio_final = property(_get_importe)
+
+
+
     class Meta:
         verbose_name='Coche'
         verbose_name_plural='Coches'
@@ -100,6 +110,3 @@ class Coche(models.Model):
 
     def __str__(self):
         return self.matricula
-
-
-

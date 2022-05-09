@@ -29,24 +29,46 @@
 {% block content %}
   <div class="grid-x">
     <h1 class="cell" style="text-align:center;">Inicio de Sesión</h1>
-    <form method="POST" style="display: block;margin-left: auto;margin-right: auto;width: 25%;" class="grid-x grid-margin-x">
-        {% csrf_token %}
-        {{ form }}
-        <input type="submit" name="submit" class="submit success button" value="Iniciar Sesión" style="border-radius:5px">
-    </form>
+        <form method="POST" style="display: block;margin-left: auto;margin-right: auto;width: 25%;" class="grid-x grid-margin-x">
+            {% csrf_token %}
+
+            <label>Nombre Usuario:
+                {{ form.username }} 
+                 {% for error in form.username.errors %}
+                    <p class="text-danger">{{ error }}</p>
+                  {% endfor %}
+
+            </label>
+
+            <label>Contraseña:
+                {{ form.password }}
+                {% for error in form.password.errors %}
+                    <p class="text-danger">{{ error }}</p>
+                  {% endfor %}
+            </label>
+                 
+
+                {% if form.non_field_errors %}
+                    {% for error in form.non_field_errors %}
+                        <p id="errores">Por favor, introduzca un nombre de usuario y clave correctos.<br/> Observe que ambos campos pueden ser sensibles a mayúsculas.</p>
+                    {% endfor %}
+                {% endif %}
+
+                <input type="submit" name="submit" class="submit success button" value="Iniciar Sesión" style="border-radius:5px">
+        </form>
 
     <div class="callout success" style="display: block;margin-left: auto;margin-right: auto;width: 25%;" class="grid-x grid-margin-x">
-      <h5>Inicio de Sesión por Certificado Digital</h5>
-      <p>Si dispone de un certificado digital, puede usarlo para iniciar sesión.</p>
+      <h5 style="text-align:center;">Inicio de Sesión con<br/> Certificado Digital</h5>
+      <p style="text-align:center;">Si dispone de un certificado digital, puede usarlo para iniciar sesión.</p>
       <div class="medium-12 cell" style="text-align:right;">
-        <a class="success button" href="#" style="text-align:right;border-radius:5px">Iniciar Sesión</a>
+        <a class="success button" href="{% url 'app_usuarios:login_cert' %}" style="text-align:right;border-radius:5px">Iniciar Sesión</a>
       </div>
     </div>
     
-    <hr class="medium-12 cell" style="height:1px;border:none;color:#333;background-color:#333; margin-top:80px;">
+    <hr class="medium-12 cell" style="height:1px;border:none;color:#333;background-color:#333; margin-top:20px;">
     <h2 class="cell" style="text-align:center;margin-top:10px">Si no esta registrado</h2>
     <div class="medium-12 cell" style="display: block;margin-left: auto;margin-right: auto;width: 10%; margin-top:10px" class="grid-x grid-margin-x">
-      <a class="success button medium-12 cell" href="{% url 'app_usuarios:registro' %}" style="text-align:center;font-size: 15px;font-weight: bold;border-radius:5px">Registrarse</a>
+      <a class="success button medium-12 cell" href="{% url 'app_usuarios:registro' %}" style="text-align:center;font-size: 15px;border-radius:5px">Registrarse</a>
     </div>
     
   </div>
