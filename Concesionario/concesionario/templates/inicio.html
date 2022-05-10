@@ -45,42 +45,47 @@
         <div>
           <p>Marca</p>
           <select name="marcaselect" id="marcaselect">
-            <option value="marca">-----</option>
-              {% for c in coches %}
-            <option>{{c.modelo.marca}}</option>     
+             <option value="default">-----</option>
+              {% for f in filtro %}
+            <option>{{f.modelo.marca}}</option>     
               {% endfor %}
           </select>
         </div>
 
         <div>
           <p>Modelo</p>
-          <select name="modeloselect" id="modeloselect" disabled=false>
-            <option value="modelo">-----</option>
-              {% for c in coches %}
-            <option>{{c.modelo}}</option>         
+          <select name="modeloselect" id="modeloselect">
+            <option value="default">-----</option>
+              {% for f in filtro %}
+            <option>{{f.modelo}}</option>         
               {% endfor %}
           </select>
         </div>
         
         <div>
           <p>Tipo</p>
-            <select name="tiposelect" id="tiposelect">
-              <option value="tipo">-----</option>
-                {% for c in coches %}
-              <option>{{c.tipo}}</option>         
+            <select name="tipo" id="tiposelect">
+               <option value="default">-----</option>
+                {% for t in tipos %}
+              <option>{{t.tipo}}</option>         
                 {% endfor %}
             </select>
         </div>
        
-        <div>
-          <p>Fecha Matriculación:</p>
-          <font size='2'> Posterior a:</font>
-          <input name="fecha" placeholder="Fecha" type="date" />
-        </div>
+         <div>
+          <p>Fecha</p>
+            <select name="fecha" id="fecha">
+              <option value="default">-----</option>
+                 {% for e in formu %}
+              <option >{{e.fecha_matriculacion}}</option>         
+                  {% endfor %}
+            </select>
+        </div>  
     
         <div>
           <p>Kilometros</p>
           <select name="kilometros" id="kilometros">
+            <option value="default">-----</option>
             <option value="0-999">0-999</option>
             <option value="1000-5000">1000-5000</option>
             <option value="5001-10000">5001-10000</option>
@@ -94,39 +99,28 @@
         
         <div>
           <p>Cambio</p>
-          <select name="cambioselect" id="cambioselect">
-            <option value="cambio">-----</option>
-              {% for c in coches %}
-            <option>{{c.CAMBIO_CHOICES|get_cambio:c.cambio}}</option>       
+          <select name="cambio" id="cambioselect">
+           <option value="default">-----</option>
+              {% for f in filtro %}
+            <option>{{f.get_cambio_display}}</option>       
               {% endfor %}
           </select>
         </div>
-        
-
-        <div>
-          <p>Potencia</p>
-          <select name="Potencia" id="Potencia">
-            <option value="b">-----</option>
-              {% for e in formu %}
-            <option value="Potencia">{{e.potencia}}</option>         
-              {% endfor %}
-          </select>
-        </div>
-    
+            
         <div>
           <p>Localización</p>
           <select name="local" id="local">
-            <option value="local">-----</option>
-              {% for e in formu %}
-            <option value="local">{{e.localizacion}}</option>         
-              {% endfor %}
+            <option value="default">-----</option>
+             {% for f in filtro%}
+            <option >{{f.get_localizacion_display}}</option>         
+        {% endfor %}
           </select>
         </div>
     
         <div>
           <p>Precio</p>
-          <select name="color" id="color">
-            <option value="b">-----</option>
+          <select name="precio" id="color">
+            <option value="default">-----</option>
             <option value="r">1€-1000€</option>
             <option value="a">1000€-5000€</option>
             <option value="v">5000€-10000€</option>
