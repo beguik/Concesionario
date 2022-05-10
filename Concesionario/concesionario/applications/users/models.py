@@ -5,6 +5,7 @@ from django.dispatch import receiver
 from phonenumber_field.modelfields import PhoneNumberField
 
 
+
 class Usuario(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE)
     dni = models.CharField('DNI', max_length=9, unique=True)

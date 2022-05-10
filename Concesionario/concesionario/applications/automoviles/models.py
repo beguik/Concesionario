@@ -1,4 +1,5 @@
 from django.db import models
+from django.template.defaulttags import register 
 
 
 class Marca(models.Model):
@@ -89,7 +90,7 @@ class Coche(models.Model):
     reservado = models.BooleanField('Reservado', default=False)
     vendido = models.BooleanField('Vendido', default=False)
     dado_de_baja = models.BooleanField('Dado de baja', default=False, blank=True)
-    imagen = models.ImageField('Imagen', upload_to='coche', blank=True, null=True)
+    imagen = models.ImageField('Imagen', upload_to="coche", default="coche/sinimagen.jpg",blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     updated_at = models.DateTimeField(auto_now_add=True, null=True)
 
@@ -101,8 +102,18 @@ class Coche(models.Model):
 
     precio_final = property(_get_importe)
 
+    def _get_potenciaw(self):
+        
+        return self.potencia*745.7
+
+    potenciaw=property(_get_potenciaw)
+
+    @register.filter
+    def get_cambio(self, key):
+        return self[int(key)]
 
 
+  
     class Meta:
         verbose_name='Coche'
         verbose_name_plural='Coches'

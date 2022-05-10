@@ -3,7 +3,7 @@ let nombre = document.getElementById("id_nombre");
 let apellido1 = document.getElementById("id_primer_apellido");
 let apellido2 = document.getElementById("id_segundo_apellido");
 let dni = document.getElementById("id_dni");
-
+let modelo=document.getElementById("modeloselect");
 //let enviar=document.getElementById("enviar");
 //let alerta=document.getElementById("errorFormulario");
 
@@ -17,6 +17,8 @@ window.addEventListener("load", () => {
 	nombre.addEventListener("focusout", validarNombre);
 	apellido1.addEventListener("blur", validarApe1);
 	apellido2.addEventListener("focusout", validarApe2);
+	modelo.addEventListener("load", disabled(select), false);
+
 
 })
 

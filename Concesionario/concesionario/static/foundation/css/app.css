@@ -33,3 +33,21 @@ margin: auto;
 	font-size:10px;
 	color: #FF0000;;
 }          
+
+#contenedorInicio{
+display: flex;
+}
+
+#inicioFiltro {
+float: left;
+width: 25%;
+background: #c1c1c1;
+border-radius: 5px;
+margin: 2%;
+}
+
+#inicioResultados {
+float: right;
+width: 65%;
+margin: 2%;
+}

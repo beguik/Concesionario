@@ -1,5 +1,7 @@
 from django.contrib import admin
+from django.utils.html import format_html
 from .models import *
+
 
 class MarcaAdmin(admin.ModelAdmin):
     list_display = (
@@ -34,6 +36,7 @@ admin.site.register(Modelo, ModeloAdmin)
 
 class CocheAdmin(admin.ModelAdmin):
     list_display = (
+        'foto',
         'matricula',
         'modelo',
         'precio_original',
@@ -44,6 +47,7 @@ class CocheAdmin(admin.ModelAdmin):
         'kilometros',
         'fecha_matriculacion',
         'potencia',
+        'potenciaw',
         'descripcion',
         'garantia',
         'puertas',
@@ -53,12 +57,16 @@ class CocheAdmin(admin.ModelAdmin):
         'dado_de_baja',
         'created_at',
         'updated_at',
-        'imagen',
+        
     )
 
     search_fields = ('matricula',)
 
     list_filter = ('modelo','reservado','localizacion','potencia','dado_de_baja','created_at','updated_at',)
+
+    def foto(self,obj):
+        return format_html('<img src={} width="25" height="25"/>',obj.imagen.url)
+
 
 admin.site.register(Coche, CocheAdmin)
 
