@@ -29,7 +29,7 @@ ALLOWED_HOSTS = []
 
 #LOGIN
 LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/perfil/'
+LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login/'
 
 
@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     #aplicaciones en local
     'applications.administracion',
     'applications.almacen',

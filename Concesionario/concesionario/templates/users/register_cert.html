@@ -33,19 +33,28 @@
         {%csrf_token %} 
 
         <table>
+
             <tr >
-                {% for field in form %}
-                    <th style="text-align:left">
-                        {{ field.label_tag }}
-                        {{ field }}
-                    </th>
-                        {% if forloop.counter|divisibleby:"2" %}
+            {% for field in form %}
+                <th style="text-align:left" >
+                {{ field.label_tag }}
+                {{ field }}
+                </th> 
+                      
+                {% if forloop.counter|divisibleby:"2" %}
             </tr>
             <tr style="background-color:#FFFFFF;;">
-                        {% endif %}
+                {% endif %}
+                {% for error in field.errors %}
+                <td rowspan="2" style="color: red" id="errores">{{ error }}
+                </td>
+                {% endfor %}
                 {% endfor %}
             </tr>
+
+
         </table>
+          
      
 
             <div class="grid-container">

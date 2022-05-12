@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% load static %}
+{% load humanize %}
 
-
-{% block title %}Inicia Sesión{% endblock %}
+{% block title %}Inicio{% endblock %}
 
 {% block head %}
     {% if user.is_authenticated %}
@@ -46,19 +46,17 @@
           <p>Marca</p>
           <select name="marcaselect" id="marcaselect">
              <option value="default">-----</option>
-              {% for f in filtro %}
-            <option>{{f.modelo.marca}}</option>     
+              {% for m in marca %}
+            <option>{{m.nombre}}</option>     
               {% endfor %}
           </select>
         </div>
 
         <div>
           <p>Modelo</p>
-          <select name="modeloselect" id="modeloselect">
+          <select name="modeloselect" id="modeloselect" disabled>
             <option value="default">-----</option>
-              {% for f in filtro %}
-            <option>{{f.modelo}}</option>         
-              {% endfor %}
+             
           </select>
         </div>
         
@@ -73,26 +71,23 @@
         </div>
        
          <div>
-          <p>Fecha</p>
-            <select name="fecha" id="fecha">
-              <option value="default">-----</option>
-                 {% for e in formu %}
-              <option >{{e.fecha_matriculacion}}</option>         
-                  {% endfor %}
-            </select>
+          <p>Matriculación anterior a: </p>
+          <input type="date" id="kword" name="fecha"
+          value="{{fecha}}"
+          min="1885-01-01" max="{{fecha}}">
         </div>  
     
         <div>
-          <p>Kilometros</p>
+          <p>Kilómetros</p>
           <select name="kilometros" id="kilometros">
             <option value="default">-----</option>
-            <option value="0-999">0-999</option>
-            <option value="1000-5000">1000-5000</option>
-            <option value="5001-10000">5001-10000</option>
-            <option value="10001-25000">10001-25000</option>
-            <option value="25001-50000">25001-50000</option>
-            <option value="50001-100000">50001-100000</option>
-            <option value="+100001">+100001</option>         
+            <option value="0Km-999Km">0Km - 1.000Km</option>
+            <option value="1000Km-5000Km">1.000Km - 5.000Km</option>
+            <option value="5001Km-10000Km">5.000Km - 10.000Km</option>
+            <option value="10001Km-25000Km">10.000Km - 25.000Km</option>
+            <option value="25001Km-50000Km">25.000Km - 50.000Km</option>
+            <option value="50001Km-100000Km">50.000Km - 100.000Km</option>
+            <option value="+100001Km<">+100.000Km</option>         
             
           </select>
         </div>
@@ -101,8 +96,8 @@
           <p>Cambio</p>
           <select name="cambio" id="cambioselect">
            <option value="default">-----</option>
-              {% for f in filtro %}
-            <option>{{f.get_cambio_display}}</option>       
+              {% for c in cambios %}
+            <option>{{c}}</option>       
               {% endfor %}
           </select>
         </div>
@@ -111,9 +106,9 @@
           <p>Localización</p>
           <select name="local" id="local">
             <option value="default">-----</option>
-             {% for f in filtro%}
-            <option >{{f.get_localizacion_display}}</option>         
-        {% endfor %}
+             {% for p in provincia%}
+                <option >{{p}}</option>         
+            {% endfor %}
           </select>
         </div>
     
@@ -121,21 +116,31 @@
           <p>Precio</p>
           <select name="precio" id="color">
             <option value="default">-----</option>
-            <option value="r">1€-1000€</option>
-            <option value="a">1000€-5000€</option>
-            <option value="v">5000€-10000€</option>
-            <option value="v">10000€-20000€</option>
+            <option value="1€-1000€">1€ - 1.000€</option>
+            <option value="1001€-5000€">1.000€ - 5.000€</option>
+            <option value="5001€-10000€">5.000€ - 10.000€</option>
+            <option value="10001€-20000€">10.000€ - 20.000€</option>
+            <option value="+20001€">+20.000€</option>
           </select>
         </div>
     
-        <input type="submit" value="Búsqueda">
+        <button class="success button" style="border-radius:5px; width:100%; " type="submit">Buscar</button>
       </form>
     </div>
   </div>
 
 
   <div id="inicioResultados">
+     {% if contador %}
+    <p style="text-align:center; font-weight:bold; color:green;">Su búsqueda contiene {{contador}} resultados.</p>
+    
+    {%elif flag%}
+    <p style="text-align:center; font-weight:bold; color:red;">Su búsqueda no contiene resultados.</p>
+    <hr> 
+    <p style="text-align:center;font-weight:bold;">Quizás le interesen las siguientes ofertas:</p>
    
+
+   {%endif%}
    <table style="border:0px" >
     {% for r in resultado %}
     <tr>
@@ -148,7 +153,7 @@
 
           </tr>
           <tr style="background-color:#ffffff">
-            <td>  Kilometros: {{r.kilometros|floatformat:0}}</td>
+            <td>  Kilómetros: {{r.kilometros|floatformat:0|intcomma}}</td>
             <td rowspan="4"style="padding-right:5%">
               <button class="success button" style="border-radius:5px; width:100%; ">Ver</button>
             </td>
@@ -159,8 +164,7 @@
             
           </tr>
           <tr>
-            <td style="background-color:#ffffff">Precio: {{r.precio_original|floatformat:0}}--Descuento: {{r.descuento|floatformat:0}}%</td>
-           
+            <td style="background-color:#ffffff"><b>Precio Final: {{r.precio_final|floatformat:0|intcomma}}€</b> // Descuento: {{r.descuento|floatformat:0|intcomma}}% // Precio Original: {{r.precio_original|floatformat:0|intcomma}}€</td>
           </tr>
         </table>
 
@@ -206,7 +210,48 @@
    </div>
 </div>
 
+<script> 
+let marca=document.getElementById("marcaselect");
 
+marca.addEventListener('change', (event) => {
+  document.getElementById("modeloselect").removeAttribute("disabled");
+  modelo_dict_js = '{{modelo.marca|safe}}';
+  console.log(modelo_dict_js);
+  
+  
+  var marcaSel= document.getElementById("marcaselect").value;
+    
+  {% for t in modelo %}
+      
+    var option=document.createElement('option');
+    if (marcaSel=="{{t.marca}}"){
+        option.text="{{t}}";
+        document.getElementById("modeloselect").appendChild(option);
+       
+    console.log("{{t}}");
+    }
+      
+    
+
+
+
+
+   
+     {%endfor%}
+
+
+   for (var m = 0; m < modelo_dict_js.lent; m++) {
+   
+  
+}
+
+
+
+
+
+});
+
+</script>
 
 
 {% endblock content %}
