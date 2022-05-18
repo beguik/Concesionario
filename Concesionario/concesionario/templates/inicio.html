@@ -5,6 +5,7 @@
 {% block title %}Inicio{% endblock %}
 
 {% block head %}
+
     {% if user.is_authenticated %}
         {% for usu in usuario %}
             {% if usu.usuario.username == user.username %}
@@ -24,6 +25,13 @@
         {% include 'includes/header-base.html' %}
     {% endif %}
 
+<style>
+ .responsive {
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+}
+  </style>
 
 
 {% endblock head %}
@@ -143,28 +151,33 @@
    {%endif%}
    <table style="border:0px" >
     {% for r in resultado %}
-    <tr>
-      <th style="width:7%; background-color:#ffffff"><img src={{r.imagen.url}} style="width:100%"></th>
-      
+    <tr> 
       <th style="width:25%; text-align:left;background-color:#ffffff">
         <table style="border-radius:5px">
           <tr>
             <th colspan="2"style="width:70%; background-color:#cdcdcd;">{{r.modelo.marca| upper }}- {{r.modelo}}</th>
+          </tr>
 
+          <tr>
+           <td rowspan="5" style="width:25%; background-color:#ffffff"><img class="responsive" src={{r.imagen.url}} style="width:100%"></td>
+           <td style="background-color:#ffffff">  Kilómetros: {{r.kilometros|floatformat:0|intcomma}} Km</td> 
           </tr>
-          <tr style="background-color:#ffffff">
-            <td>  Kilómetros: {{r.kilometros|floatformat:0|intcomma}}</td>
-            <td rowspan="4"style="padding-right:5%">
-              <button class="success button" style="border-radius:5px; width:100%; ">Ver</button>
+          
+          <tr>
+            <td style="background-color:#ffffff"> Año Matriculación: {{r.fecha_matriculacion| date:'Y'}}</td>
+          </tr>
+          <tr>
+            
+            {% if r.descuento == 0 %}
+            <td style="background-color:#ffffff"><b>Precio Final: {{r.precio_final|floatformat:0|intcomma}}€</b></td>
+            {% else %}
+            <td style="background-color:#ffffff"><b>Precio Final: {{r.precio_final|floatformat:0|intcomma}}€</b>  con un Descuento de: {{r.descuento|floatformat:0|intcomma}}% </td>
+            {% endif %}
+          </tr>
+          <tr>
+            <td  style="background-color:#ffffff; margin-left: 50%;">
+              <button rowspan="4"class="success button" style="border-radius:5px; width:50%; margin-left: 20%;">Ver</button>
             </td>
-            
-          </tr>
-          <tr>
-            <td> Año Matriculación: {{r.fecha_matriculacion| date:'Y'}}</td>
-            
-          </tr>
-          <tr>
-            <td style="background-color:#ffffff"><b>Precio Final: {{r.precio_final|floatformat:0|intcomma}}€</b> // Descuento: {{r.descuento|floatformat:0|intcomma}}% // Precio Original: {{r.precio_original|floatformat:0|intcomma}}€</td>
           </tr>
         </table>
 
@@ -217,35 +230,26 @@ marca.addEventListener('change', (event) => {
   document.getElementById("modeloselect").removeAttribute("disabled");
   modelo_dict_js = '{{modelo.marca|safe}}';
   console.log(modelo_dict_js);
-  
-  
+  document.getElementById("modeloselect").innerHTML="";
+
   var marcaSel= document.getElementById("marcaselect").value;
     
   {% for t in modelo %}
       
     var option=document.createElement('option');
+
     if (marcaSel=="{{t.marca}}"){
         option.text="{{t}}";
         document.getElementById("modeloselect").appendChild(option);
-       
-    console.log("{{t}}");
+
     }
-      
-    
-
-
-
-
    
      {%endfor%}
 
 
    for (var m = 0; m < modelo_dict_js.lent; m++) {
-   
-  
+     
 }
-
-
 
 
 

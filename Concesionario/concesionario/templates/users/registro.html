@@ -38,19 +38,31 @@
             <tr >
             {% for field in form %}
                 <th style="text-align:left" >
-                {{ field.label_tag }}
-                {{ field }}
+                    {{ field.label_tag }}
+                    {{ field }}
+
+                    {% if forloop.counter|divisibleby:"3" %}
+                        <spam id="errorPass1"style="font-size:10px;color: #FF0000;"></spam>
+                    {%endif%}
+                
+                    {% for error in field.errors %}
+                        <spam style="color: red" id="errores">{{ error }}<br/>
+                        </spam>
+                    {% endfor %}
+               
+
+                    {% if forloop.last %}
+                        <spam id="errorPass2"style="font-size:10px;color: #FF0000;"></spam>
+                    {%endif%}
                 </th> 
-                      
+                
                 {% if forloop.counter|divisibleby:"2" %}
             </tr>
             <tr style="background-color:#FFFFFF;;">
+
                 {% endif %}
-                {% for error in field.errors %}
-                <td rowspan="2" style="color: red" id="errores">{{ error }}
-                </td>
                 {% endfor %}
-                {% endfor %}
+
             </tr>
 
 

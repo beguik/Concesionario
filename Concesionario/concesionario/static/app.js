@@ -3,6 +3,8 @@ let nombre = document.getElementById("id_nombre");
 let apellido1 = document.getElementById("id_primer_apellido");
 let apellido2 = document.getElementById("id_segundo_apellido");
 let dni = document.getElementById("id_dni");
+let pass = document.getElementById("id_password1")
+let pass1 = document.getElementById("id_password2")
 
 //let enviar=document.getElementById("enviar");
 //let alerta=document.getElementById("errorFormulario");
@@ -17,6 +19,8 @@ window.addEventListener("load", () => {
 	nombre.addEventListener("focusout", validarNombre);
 	apellido1.addEventListener("blur", validarApe1);
 	apellido2.addEventListener("focusout", validarApe2);
+	pass.addEventListener("focusout",validarPass);
+	pass1.addEventListener("focusout",compararPass);
 	
 
 
@@ -86,6 +90,32 @@ function validarNombre(){
 		spam.innerHTML = "";
 	}	
  }
+
+ function validarPass(){
+ 	let expresion=/^[A-Za-z\d$@$!%*?&]{4,20}$/
+ 	let spam = document.getElementById("errorPass1"); 
+ 	if (!expresion.test(pass.value)) {
+		spam.innerHTML = "la contraseña es demasiado corta";
+		pass.focus();
+	} else{
+		spam.innerHTML = "";
+		
+	}	
+ }
+
+ function compararPass(){
+	let spam = document.getElementById("errorPass2"); 
+
+ 	if (pass.value!=pass1.value){
+ 		
+		spam.innerHTML = "las contraseñas no coinciden";
+		pass.focus();
+ 	} else{
+		spam.innerHTML = "";
+		
+	}	
+ }
+
 
 
 

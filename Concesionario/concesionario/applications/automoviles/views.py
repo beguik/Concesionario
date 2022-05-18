@@ -1,10 +1,14 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView, ListView, View
 from .models import *
+from .forms import *
 from django.db.models import FilteredRelation, Q
 from datetime import datetime 
 from django.db.models import Max
 from django.core.paginator import Paginator
+from applications.users.models import Usuario
+from django.http import HttpResponseRedirect
+from django.urls import reverse_lazy
 from .choices import *
 import collections
 import hashlib
@@ -12,7 +16,58 @@ import hashlib
 
 
 # Create your views here.
+
+class Añadir(View):
+
+    def get(self,request):
+        usuario=Usuario.objects.all()
+        marca=Marca.objects.all()
+        modelo=Modelo.objects.all()
+        tipos=TiposCoches.objects.all()
+        form=AñadirCoche
+        fecha=datetime.now().strftime('%Y-%m-%d') 
+
+
+        return render(request, "añadir.html",{"usuario":usuario,"form":form,"marca":marca,"modelo":modelo,"fecha":fecha,"tipos":tipos})
     
+    def post(self,request):
+        if request.method=='POST':
+            datos=request.POST
+
+            matricula=datos['matricula']
+            modelo=datos['modeloselect']
+            model=Modelo.objects.get(nombre=modelo)
+            tipo=datos['tipo']
+            tip=TiposCoches.objects.get(tipo=tipo)
+            fecha_matriculacion=datos['fecha_matriculacion']
+            descripcion=datos['descripcion']
+            localizacion=datos['localizacion']
+            kilometros= datos['kilometros']
+            potencia=datos['potencia']
+            cambio=datos['cambio']
+            garantia=datos['garantia']
+            puertas=datos['puertas']
+            precio=datos['precio_original']
+            descuento=datos['descuento']
+            imagen=datos['imagen']
+            if imagen=="":
+                imagen="coche/sinimagen.jpg"
+
+            logs("modelo", str(modelo))
+            logs("añadir", str(datos))
+            Coche.objects.create(matricula=matricula, modelo=model, precio_original=precio, 
+                descuento=descuento,localizacion=localizacion,tipo=tip, kilometros=kilometros,
+                fecha_matriculacion=fecha_matriculacion,potencia=potencia,descripcion=descripcion,
+                garantia=garantia,puertas=puertas, cambio=cambio,imagen=imagen )
+
+
+         
+
+            success_url = reverse_lazy('app_automoviles:inicio')
+            return HttpResponseRedirect(success_url)
+
+
+
 class Inicio(View):
     model=Coche
 
@@ -24,13 +79,14 @@ class Inicio(View):
         tipos=TiposCoches.objects.all() 
         provincia= lista_fuc(PROVINCE_CHOICES)
         cambios= lista_fuc(CAMBIO_CHOICES)
-        respuesta=Coche.objects.all() 
-        paginator=Paginator(respuesta,4)
+        respuesta=Coche.objects.all().order_by('created_at')[:50]
+        paginator=Paginator(respuesta,3)
         page_number=request.GET.get('page')
         resultado =paginator.get_page(page_number)
+        usuario=Usuario.objects.all()
         
         
-        return render(request,"inicio.html",{"fecha":datetime.now().strftime('%Y-%m-%d'),"filtro":filtro,"resultado":resultado,"tipos":tipos, "provincia":provincia,"marca":marca, "modelo":modelo, "cambios":cambios,})
+        return render(request,"inicio.html",{"fecha":datetime.now().strftime('%Y-%m-%d'),"filtro":filtro,"resultado":resultado,"tipos":tipos, "provincia":provincia,"marca":marca, "modelo":modelo, "cambios":cambios,"usuario":usuario})
     
     def post(self,request):
         
@@ -43,6 +99,7 @@ class Inicio(View):
         kilometros_max=Coche.objects.all().aggregate(Max('kilometros'))
         datos2=request.POST
         datos=datos2.copy()
+        usuario=Usuario.objects.all()
 
         if 'modeloselect' not in datos.keys():
             datos.update({'modeloselect': ''})
@@ -83,22 +140,22 @@ class Inicio(View):
             Q(localizacion__icontains=choices_search(datos["local"],PROVINCE_CHOICES)) &
             Q(precio_original__gte=datos["precio"].split("-")[0]) &
             Q(precio_original__lte=datos["precio"].split("-")[1]),
-            )
+            ).order_by('created_at')[:50]
         flag=True
         contador=len(resultado)
-        paginator=Paginator(resultado,4)
+        paginator=Paginator(resultado,3)
         page_number=request.GET.get('page')
         resultado =paginator.get_page(page_number)
         if contador==0:
-            resultado2=Coche.objects.order_by("-descuento")
-            paginator=Paginator(resultado2,4)
+            resultado2=Coche.objects.order_by("-descuento")[:50]
+            paginator=Paginator(resultado2,3)
             page_number=request.GET.get('page')
             resultado2 =paginator.get_page(page_number)
-            return render(request, "inicio.html",{"fecha":datetime.now().strftime('%Y-%m-%d'),"resultado":resultado2,"filtro":Coche.objects.all(),"marca":marca, "modelo":modelo, "tipos":tipos, "contador":contador,"provincia":provincia, "cambios":cambios,"flag":flag})
+            return render(request, "inicio.html",{"fecha":datetime.now().strftime('%Y-%m-%d'),"resultado":resultado2,"filtro":Coche.objects.all(),"marca":marca, "modelo":modelo, "tipos":tipos, "contador":contador,"provincia":provincia, "cambios":cambios,"flag":flag,"usuario":usuario})
         
 
         logs("log_diccionario",str(datos))
-        return render(request, "inicio.html",{"fecha":datetime.now().strftime('%Y-%m-%d') ,"resultado":resultado, "filtro":Coche.objects.all(),"marca":marca, "modelo":modelo, "tipos":tipos, "contador":contador,"provincia":provincia, "cambios":cambios,"flag":flag,})
+        return render(request, "inicio.html",{"fecha":datetime.now().strftime('%Y-%m-%d') ,"resultado":resultado, "filtro":Coche.objects.all(),"marca":marca, "modelo":modelo, "tipos":tipos, "contador":contador,"provincia":provincia, "cambios":cambios,"flag":flag,"usuario":usuario})
 
 
       
@@ -116,10 +173,6 @@ def choices_search(search="",lista_choise=list()):
             return i[0]
 
 
-"""def delete_dic(dic):
-    logs("log_dic2.txt",str(dic))
-    for i in dic:
-        logs("log_dic2.txt",str(i))"""
 def lista_fuc(lista=list()):
     lista=list(lista)
     lista_datos=list()

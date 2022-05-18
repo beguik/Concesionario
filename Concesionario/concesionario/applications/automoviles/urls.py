@@ -7,7 +7,6 @@ app_name = "app_automoviles"
 urlpatterns =[ 
 	
 	path("",views.Inicio.as_view(),name="inicio"),
-	
-	
+	path("añadir/",views.Añadir.as_view(),name="añadir"),
 ]
 

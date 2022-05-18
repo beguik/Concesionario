@@ -8,6 +8,16 @@
 	border: solid 2px #919191;
 	padding: 30px;
 }
+
+#annadir{
+	width: 75%;
+	margin: auto;
+	margin-top: 3%;
+	border-radius:15px;
+	border: solid 2px #919191;
+	padding: 30px;
+}
+
 #hint_id_username{
 	display: none;
 }
@@ -31,8 +41,8 @@ margin: auto;
 
 #errores {
 	font-size:10px;
-	color: #FF0000;;
-}          
+	color: #FF0000;
+}    
 
 #contenedorInicio{
 display: flex;

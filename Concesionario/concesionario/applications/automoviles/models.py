@@ -73,7 +73,6 @@ class Coche(models.Model):
 
     matricula = models.CharField('MATRICULA', unique=True, primary_key=True, max_length=7)
     modelo = models.ForeignKey(Modelo, verbose_name=("Modelo"), on_delete=models.CASCADE)
-    
     precio_original = models.DecimalField('Precio Original', max_digits=13, decimal_places=6)
     descuento = models.DecimalField('Descuento', max_digits=13, decimal_places=6)    
     localizacion = models.CharField('Localización', max_length=2, choices=PROVINCE_CHOICES)
