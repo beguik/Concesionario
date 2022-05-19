@@ -7,6 +7,9 @@ app_name = "app_automoviles"
 urlpatterns =[ 
 	
 	path("",views.Inicio.as_view(),name="inicio"),
-	path("añadir/",views.Añadir.as_view(),name="añadir"),
+	path("add/",views.Add.as_view(),name="add"),
+	path("info/<pk>",views.Info_coche.as_view(),name="info"),
+    path('confirmar_reserva/<pk>/', views.ReservaView.as_view(), name='confirmar_reserva'),
+
 ]
 

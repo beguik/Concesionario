@@ -92,7 +92,7 @@ function validarNombre(){
  }
 
  function validarPass(){
- 	let expresion=/^[A-Za-z\d$@$!%*?&]{4,20}$/
+ 	let expresion=/^[A-Za-z\d$@$!%*?&]{4,100}$/
  	let spam = document.getElementById("errorPass1"); 
  	if (!expresion.test(pass.value)) {
 		spam.innerHTML = "la contraseña es demasiado corta";

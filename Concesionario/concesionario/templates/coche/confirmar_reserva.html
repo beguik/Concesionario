@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Confirmación Reserva{% endblock %}
+
+{% block head %}
+
+    {% if user.is_authenticated %}
+        {% for usu in usuario %}
+            {% if usu.usuario.username == user.username %}
+                {% if usu.concesionario == null %}
+                    {% include 'includes/header-reserva.html' %}
+                {% else %}
+                    {% include 'includes/header-conce.html' %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+
+        {% if user.is_staff %}
+            {% include 'includes/header-admin.html' %}
+        {% endif %}
+
+    {% else %}
+        {% include 'includes/header-base.html' %}
+    {% endif %}
+<style>
+ .responsive {
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+}
+  </style>
+
+
+{% endblock head %}
+
+
+{% block content %}
+
+<h2 style="text-align:center; margin-top:5px">Confirmación de reserva</h2>
+
+    <form action="." method="post">{% csrf_token %}
+        {% for u in usuario %}
+            {% if u.usuario.username == user.username %}
+                <input type='hidden' value='{{u.dni}}' name="usu">
+            {% endif %}
+        {% endfor %}
+        <table class="center"style="border-radius:5px; margin-left: auto;margin-right: auto; width:30%; margin-top:2%">
+            <tr>
+                <th style="background-color:#cdcdcd;">{{coche.modelo.marca| upper }} {{coche.modelo}} - {{coche.matricula}}</th>
+            </tr>
+            
+            <th style="background-color:#ffffff"><img class="responsive" src={{coche.imagen.url}} style="width:100%"></th>
+
+
+            <tr>
+                <th style="background-color:#ffffff"><b>Precio: {{coche.precio_final|floatformat:0|intcomma}}€</b></th>
+            </tr>
+            <tr>
+                <th style="background-color:#ffffff"><b>Fecha inicio Reserva:</b></th>
+            </tr>
+            <tr>
+                <th style="background-color:#ffffff;"><input style="width:50%; margin-left:25%" type="date" id="kword" name="fecha" value="{{fecha}}" min="{{fecha}}" max="{{fecha_max}}"></th>
+            </tr>
+                {% if coche.reservado%}
+                    <tr>
+                        <th  style="background-color:#ffffff;">
+                            <button disabled type='submit' href="{% url 'app_automoviles:inicio' %}" class="success button" style="border-radius:5px; width:50%;">Reservar</button>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th  style="background-color:#ffffff;">
+                            <p style="color:red;">El coche esta reservado</p>
+                        </th>
+                    </tr>
+                {% elif user.is_staff %}
+                    <tr>
+                        <th  style="background-color:#ffffff;">
+                            <button disabled type='submit' href="{% url 'app_automoviles:inicio' %}" class="success button" style="border-radius:5px; width:50%;">Reservar</button>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th  style="background-color:#ffffff;">
+                            <p style="color:red;">Los admin no pueden reservar</p>
+                        </th>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <th  style="background-color:#ffffff;">
+                            <button type='submit' href="{% url 'app_automoviles:inicio' %}" class="success button" style="border-radius:5px; width:50%;">Reservar</button>
+                        </th>
+                    </tr>
+                {% endif %}
+        </table>
+    </form>
+{% endblock content %}

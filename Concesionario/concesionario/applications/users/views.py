@@ -46,7 +46,7 @@ class Registro(View):
 				
 					login(request, user)
 			
-					return redirect('/perfil/')
+					return redirect('/')
 				else: 
 					mensaje="Compruebe que el dni sea correcto"
 					return render(request,"users/registro.html",{"form":form,"formDatos":formDatos, "mensaje":mensaje})
@@ -70,7 +70,7 @@ def cert(request):
 		if Usuario.objects.filter(dni=diccionario_del_certificado["DNI"]).exists():
 			respuesta=Usuario.objects.get(dni=diccionario_del_certificado["DNI"])
 			login(request, respuesta.usuario)
-			return redirect('/perfil/')
+			return redirect('/')
 		else:
 			form = CreacionUser(request.POST)
 			formDatos = RegistroForm()
@@ -125,8 +125,6 @@ class Perfil(ListView):
     model=Usuario
     context_object_name='usuario'
     template_name='users/perfil.html'
-
-
 
 #Función para validar dni
 def validarDni(dni):

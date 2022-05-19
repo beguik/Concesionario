@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block head %}
+<style>
+  .responsive {
+   width: 100%;
+   max-width: 400px;
+   height: auto;
+ }
+   </style>
+
+    {% if user.is_authenticated %}
+        {% for usu in usuario %}
+            {% if usu.usuario.username == user.username %}
+                {% if usu.concesionario == null %}
+                    {% include 'includes/header-reserva.html' %}
+                {% else %}
+                    {% include 'includes/header-conce.html' %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+
+        {% if user.is_staff %}
+            {% include 'includes/header-admin.html' %}
+        {% endif %}
+
+    {% else %}
+        {% include 'includes/header-base.html' %}
+    {% endif %}
+{% endblock head %}
+{% block content %}
+
+<div  class="card" style="width: 75%; margin: auto; margin-top: 3%; border-radius:15px; border: solid 2px #919191; padding: 20px;">
+<table style="border:0px" >
+    
+    <tr> 
+      <th style="width:25%; text-align:left;background-color:#ffffff">
+        <table style="border-radius:5px">
+          
+            <tr>
+                <th colspan="5"style="width:70%; background-color:#cdcdcd;">{{coche.modelo.marca| upper }}- {{coche.modelo}}</th>
+        
+              </tr>
+          
+          <th rowspan="11" style="width:30%; background-color:#ffffff"><img class="responsive" src={{coche.imagen.url}} style="width:100%"></th>
+          <tr>
+            <td style="background-color:#ffffff"> Descripcion: {{coche.descripcion}}</td>
+            
+          </tr>
+          
+      
+      <tr>
+        <td style="background-color:#ffffff"> Potencia: {{coche.potencia}}</td>
+        
+      </tr>
+      <tr>
+        
+                 
+    
+        <td style="background-color:#ffffff"> Localizacion: {{coche.get_localizacion_display}}</td>
+        
+      </tr>
+      <tr>
+        <td style="background-color:#ffffff"> Puertas: {{coche.puertas}}</td>
+        
+      </tr>
+
+      <tr>
+        <td style="background-color:#ffffff"> Año Matriculación: {{coche.fecha_matriculacion| date:'Y'}}</td>
+        
+      </tr>
+      <tr>
+        <td style="background-color:#ffffff"><b>Precio Final: {{coche.precio_final|floatformat:0|intcomma}}€</b> // Descuento: {{coche.descuento|floatformat:0|intcomma}}% // Precio Original: {{coche.precio_original|floatformat:0|intcomma}}€</td>
+       
+      </tr>
+      <tr>
+        <td style="background-color:#ffffff"> Matricula: {{coche.matricula}}</td>
+        
+      </tr>
+          <tr style="background-color:#ffffff">
+            <td style="background-color:#ffffff">  Kilómetros: {{coche.kilometros|floatformat:0|intcomma}} Km</td>            
+          </tr>
+          
+          {%if coche.reservado == True %}
+          <tr>
+            <td style="background-color:#ffffff"> Este coche ya esta reservado</td>
+            
+          </tr>
+          
+          {%else%}
+          {% if user.is_authenticated %}
+          <tr>
+            <td><a class="success button" style="border-radius:5px; width:50%; "href="{% url 'app_automoviles:confirmar_reserva' coche.matricula %}">Reservar</a></td>
+            </tr>
+            {%else %}
+            
+            <tr>
+                
+                <td style="background-color:#ffffff;color:red;"> Te debes de autenticar antes </td>
+                
+              </tr>
+              <tr>
+                <td style="background-color:#ffffff"><button disabled="disabled" class="success button" style="border-radius:5px; width:50%; "href="{% url 'app_automoviles:info' coche.matricula %}">Reservar</button>
+            </tr>
+              {%endif %}
+          {%endif %}
+        </table>
+        
+            
+          
+      </th>
+    </tr>
+     
+   </table>
+   </div>
+
+{% endblock content%}

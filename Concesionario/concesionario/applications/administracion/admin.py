@@ -12,13 +12,13 @@ class CargaAdmin(admin.ModelAdmin):
         'updated_at',
     )
 
-    search_fields = ('usuario_concesionario','coche')
+    search_fields = ('usuario','coche')
 
     list_filter = ('coche','created_at','updated_at',)
 
     @admin.display(description='Usuario')
     def get_usuario(self,obj):
-        return obj.usuario_concesionario.dni
+        return obj.usuario.dni
 
 admin.site.register(Carga, CargaAdmin)
 
@@ -35,11 +35,11 @@ class ReservaAdmin(admin.ModelAdmin):
         'updated_at',
     )
 
-    search_fields = ('usuario_registro','coche')
+    search_fields = ('usuario','coche')
 
     list_filter = ('coche','fecha_inicio_reserva','fecha_fin_reserva',)
     @admin.display(description='Usuario')
     def get_usuario(self,obj):
-        return obj.usuario_registro.dni
+        return obj.usuario.dni
 
 admin.site.register(Reserva, ReservaAdmin)

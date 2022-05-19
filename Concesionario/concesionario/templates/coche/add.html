@@ -40,8 +40,15 @@
         <p style="text-align:center">Rellene el siguiente formulario para proceder a una carga manual</p>
 
 </div>
-
+<center>
+{% for e in errores %}
+       <h6 style="font-size:10; color:red"> {{e}} <br/></h6>   
+    {% endfor %}
+</center>
 <div id="annadir" class="card" style="width: 75%; margin: auto; margin-top: 3%; border-radius:15px; border: solid 2px #919191; padding: 20px;">
+
+     
+
 <form action="" enctype="multipart/form-data" method="POST">
                 {%csrf_token %}
 	<table width="60%">
@@ -79,7 +86,7 @@
         </tr>
 
         <tr style="background-color:#ffffff">
-            <td rowspan="3" colspan="2">Descripcion {{form.descripcion}}</td>
+            <td rowspan="3" colspan="2">Descripción {{form.descripcion}}</td>
             <td>Localización:{{form.localizacion}}</td>              
             <td>Kilómetros: {{form.kilometros}}
                 <span id="errorKilometros" style="font-size:10px; color: #FF0000;"></span>
@@ -118,6 +125,7 @@
 
 
 <script> 
+
 let marca=document.getElementById("marcaselect");
 let kilometros=document.getElementById("id_kilometros");
 let potencia=document.getElementById("id_potencia");
@@ -130,13 +138,13 @@ let fecha=document.getElementById("id_fecha_matriculacion");
 window.addEventListener("load", () => {
     
     kilometros.setAttribute("min", 0);
-    kilometros.setAttribute("step",1);
+    kilometros.setAttribute("step",0.01);
     potencia.setAttribute("min", 0);
     precio.setAttribute("min",0);
     precio.setAttribute("step",0.01);
     descuento.setAttribute("min",0);
     descuento.setAttribute("max",100);
-    descuento.setAttribute("step",2);
+    descuento.setAttribute("step",0.01);
     fecha.setAttribute("min","1985-01-01")
     fecha.setAttribute("max","{{fecha}}")
     marca.addEventListener('change',CargarModelos);
@@ -146,9 +154,7 @@ window.addEventListener("load", () => {
     precio.addEventListener('focusout', ValidarPrecio);
     descuento.addEventListener('focusout',ValidarDescuento);
 
-
 })
-
 
 function CargarModelos(){
 
@@ -184,7 +190,7 @@ function ValidarMatricula(){
 }
     
 function ValidarKilometros(){
-    let expresion=/^\d{2,6}$/;
+    let expresion=/^\d{0,6}$/;
     let spam = document.getElementById("errorKilometros"); 
     if (!expresion.test(kilometros.value)) {
         spam.innerHTML = "El valor introducido no es correcto";
@@ -223,7 +229,7 @@ function ValidarDescuento(){
     let expresion=/^[0-9]+([.][0-9]{1,2})?$/;
     let spam = document.getElementById("errorDescuento"); 
     if (!expresion.test(descuento.value)) {
-        console.log("if")
+      
         spam.innerHTML = "El valor introducido no es correcto.";
         descuento.value=0;
         descuento.focus();
@@ -231,9 +237,6 @@ function ValidarDescuento(){
             spam.innerHTML = "";
         }
 }
-
-
-
 
 </script>
 
