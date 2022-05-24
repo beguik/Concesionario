@@ -1,22 +1,20 @@
 from django.shortcuts import render
+from django.urls import reverse_lazy
 from django.views.generic import TemplateView, ListView, View
+from .models import *
 from django.db.models import FilteredRelation, Q
+from datetime import datetime, timedelta 
 from django.db.models import Max
 from django.core.paginator import Paginator
-from django.http import HttpResponseRedirect
-from django.urls import reverse_lazy
-from django.contrib import messages
-from datetime import datetime, timedelta 
-from applications.users.models import Usuario
-from applications.administracion.models import Reserva
 from .choices import *
-from .models import *
+from applications.users.models import Usuario
+from django.http import HttpResponseRedirect
+from applications.administracion.models import Reserva
 from .forms import *
-import collections
-import hashlib
-import csv, io
 
 
+# Create your views here.
+    
 class Inicio(View):
     model=Coche
 
@@ -32,10 +30,13 @@ class Inicio(View):
         paginator=Paginator(respuesta,3)
         page_number=request.GET.get('page')
         resultado =paginator.get_page(page_number)
-        usuario=Usuario.objects.all()
+
+        """
+        a=Modelo.objects.filter(id_modelo__gte=146)
+        a.delete()
+        """        
         
-        
-        return render(request,"inicio.html",{"fecha":datetime.now().strftime('%Y-%m-%d'),"filtro":filtro,"resultado":resultado,"tipos":tipos, "provincia":provincia,"marca":marca, "modelo":modelo, "cambios":cambios,"usuario":usuario})
+        return render(request,"inicio.html",{"usuario":Usuario.objects.all(),"fecha":datetime.now().strftime('%Y-%m-%d'),"filtro":filtro,"resultado":resultado,"tipos":tipos, "provincia":provincia,"marca":marca, "modelo":modelo, "cambios":cambios,})
     
     def post(self,request):
         
@@ -48,13 +49,12 @@ class Inicio(View):
         kilometros_max=Coche.objects.all().aggregate(Max('kilometros'))
         datos2=request.POST
         datos=datos2.copy()
-        usuario=Usuario.objects.all()
-
+        logs("log_dic",datos)
+        
+        
         if 'modeloselect' not in datos.keys():
             datos.update({'modeloselect': ''})
-        
         for i in datos.keys():
-            logs("log_prueba",str(datos[i]))
             if i=="fecha":
                 if datos[i]=="default":
                     datos[i]=(f"1885-1-1:{datetime.now().strftime('%Y-%m-%d')}")
@@ -75,7 +75,7 @@ class Inicio(View):
                 datos[i]=(f'{str(datos[i]).replace("Km","")}')
             elif datos[i]=="default":     
                 datos[i]=""
-            logs("log_fecha.txt",str(datos["fecha"]))
+            
 
         resultado=Coche.objects.filter(
             Q(modelo__nombre__icontains=datos["modeloselect"]) &
@@ -100,124 +100,49 @@ class Inicio(View):
             paginator=Paginator(resultado2,3)
             page_number=request.GET.get('page')
             resultado2 =paginator.get_page(page_number)
-            return render(request, "inicio.html",{"fecha":datetime.now().strftime('%Y-%m-%d'),"resultado":resultado2,"filtro":Coche.objects.all(),"marca":marca, "modelo":modelo, "tipos":tipos, "contador":contador,"provincia":provincia, "cambios":cambios,"flag":flag,"usuario":usuario})
+            return render(request, "inicio.html",{"usuario":Usuario.objects.all(),"fecha":datetime.now().strftime('%Y-%m-%d'),"resultado":resultado2,"filtro":Coche.objects.all(),"marca":marca, "modelo":modelo, "tipos":tipos, "contador":contador,"provincia":provincia, "cambios":cambios,"flag":flag})
         
 
         logs("log_diccionario",str(datos))
-        return render(request, "inicio.html",{"fecha":datetime.now().strftime('%Y-%m-%d') ,"resultado":resultado, "filtro":Coche.objects.all(),"marca":marca, "modelo":modelo, "tipos":tipos, "contador":contador,"provincia":provincia, "cambios":cambios,"flag":flag,"usuario":usuario})
+        return render(request, "inicio.html",{"usuario":Usuario.objects.all(),"fecha":datetime.now().strftime('%Y-%m-%d') ,"resultado":resultado, "filtro":Coche.objects.all(),"marca":marca, "modelo":modelo, "tipos":tipos, "contador":contador,"provincia":provincia, "cambios":cambios,"flag":flag})
 
 
-class Add(View):
+      
+def logs(file="log",mensaje=""):
+    escribir = open(file+".txt", "a")
+    escribir.write(str(mensaje)+"\n")
+    escribir.close()
 
-    def get(self,request):
-        usuario=Usuario.objects.all()
-        marca=Marca.objects.all()
-        modelo=Modelo.objects.all()
-        tipos=TiposCoches.objects.all()
-        form=AñadirCoche
-        fecha=datetime.now().strftime('%Y-%m-%d') 
-
-
-        return render(request, "coche/add.html",{"usuario":usuario,"form":form,"marca":marca,"modelo":modelo,"fecha":fecha,"tipos":tipos})
-    
-    def post(self,request):
-        usuario=Usuario.objects.all()
-        marca=Marca.objects.all()
-        modelo=Modelo.objects.all()
-        tipos=TiposCoches.objects.all()
-        form=AñadirCoche
-        fecha=datetime.now().strftime('%Y-%m-%d') 
+def choices_search(search="",lista_choise=list()):
+    a,b = 'áéíóúüñÁÉÍÓÚÜÑ','aeiouunAEIOUUN'
+    trans = str.maketrans(a,b)
+    if search=="":
+        return ""
+    for i in lista_choise:
+        if i[1].translate(trans)==search:
+            return i[0]
 
 
-        if request.method=='POST':
-            datos=request.POST
-            #creamos una lista que contendrá el resultado de las validaciones para poder comprobar posteriormente si todas han sido correctas
-            validaciones=[]
-            #creamos una lista a la que le vamos añadiendo los distintos errores para poder mostrarlos luego al usuario.
-            errores=[]
-
-            matricula=datos['matricula']
-            validaciones.append(validarMatricula(matricula))
-            if not (validarMatricula(matricula)):
-                errores.append("El campo de la matrícula no se rellenó correctamente o ya está incluida en la base de datos.")
-            
-            modelo=datos['modeloselect']
-            if modelo=="default":
-                validaciones.append(False)
-                errores.append("Debe seleccionar un modelo")
-            else:
-                model=Modelo.objects.get(nombre=modelo)
-            
-            tipo=datos['tipo']
-            if tipo=="default":
-                validaciones.append(False)
-                errores.append("Debe seleccionar un tipo")
-            else:
-                tip=TiposCoches.objects.get(tipo=tipo)
-            
-            fecha_matriculacion=datos['fecha_matriculacion']
-            descripcion=datos['descripcion']
-
-            localizacion=datos['localizacion']
-            if not localizacion.isdigit():
-                #controlamos aquí que ha seleccionado algún campo(al igual que en todos los choices)
-                validaciones.append(False)
-                errores.append("Debe seleccionar una localidad")
-
-            kilometros= datos['kilometros']
-            validaciones.append(validarKilometros(kilometros))
-            if not validarKilometros(kilometros):
-                errores.append("El campo kilómetros no tiene un valor correcto")
-
-            potencia=datos['potencia']
-            validaciones.append(validarPotencia(potencia))
-            if not validarPotencia(potencia):
-                errores.append("El campo potencia no es correcto")
-
-            cambio=datos['cambio']
-            if not cambio.isdigit():
-                validaciones.append(False)
-                errores.append("Debe seleccionar un tipo de cambio")
-            
-            garantia=datos['garantia']
-            if not garantia.isdigit():
-                validaciones.append(False)
-                errores.append("Debe seleccionar un tipo de garantia")
-            
-            puertas=datos['puertas']
-            if not garantia.isdigit():
-                validaciones.append(False)
-                errores.append("Debe seleccionar las puertas")
-
-            precio=datos['precio_original']
-            validaciones.append(validarPrecio(precio))
-            if not validarPrecio(precio):
-                errores.append("El campo precio no es correcto")
-
-            descuento=datos['descuento']
-            validaciones.append(validarDescuento(descuento))
-            if not validarDescuento(descuento):
-                errores.append("El campo precio no es correcto")
-            
-
-            imagen=datos['imagen']
-            if imagen=="":
-                imagen="coche/sinimagen.jpg"
-
-            if False in validaciones:
-
-                return render(request, "coche/add.html",{"errores":errores,"usuario":usuario,"form":form,"marca":marca,"modelo":modelo,"fecha":fecha,"tipos":tipos})
-
-            else:
-                logs("validaciones",str(validaciones))
-                Coche.objects.create(matricula=matricula, modelo=model, precio_original=precio, 
-                    descuento=descuento,localizacion=localizacion,tipo=tip, kilometros=kilometros,
-                    fecha_matriculacion=fecha_matriculacion,potencia=potencia,descripcion=descripcion,
-                    garantia=garantia,puertas=puertas, cambio=cambio,imagen=imagen )
-
-                success_url = reverse_lazy('app_automoviles:inicio')
-                return HttpResponseRedirect(success_url)
-
+"""def delete_dic(dic):
+    logs("log_dic2.txt",str(dic))
+    for i in dic:
+        logs("log_dic2.txt",str(i))"""
+def lista_fuc(lista=list()):
+    lista=list(lista)
+    lista_datos=list()
+    for i in range(len(lista)):
+        lista_datos.append(lista[i][1])
+        
+    lista_tupla=tuple(lista_datos)
+    return lista_tupla
+class Info_coche(View):
+    model=Coche
+    def get(self,request,pk):
+        coche=Coche.objects.get(matricula=pk)
+        
+        logs("log_pk",pk)
+        return render(request,"coche/info.html",{"provincia":lista_fuc(PROVINCE_CHOICES),"usuario":Usuario.objects.all(),"coche":coche})
+#CONFIRMACION RESERVA
 class ReservaView(View):
     model=Coche
 
@@ -246,7 +171,7 @@ class ReservaView(View):
             logs('log_reserva', str(usuario) +' - '+ str(coche)+' - '+ fecha_inicio+' - '+fecha_fin)
 
             reserva=Reserva.objects.create(
-                usuario = usuario,
+                usuario_registro = usuario,
                 coche = coche,
                 fecha_inicio_reserva = fecha_inicio,
                 fecha_fin_reserva = fecha_fin,
@@ -258,103 +183,261 @@ class ReservaView(View):
             success_url = reverse_lazy('app_automoviles:inicio')
             return HttpResponseRedirect(success_url)
 
-class Info_coche(View):
-    model=Coche
-    def get(self,request,pk):
-        coche=Coche.objects.get(matricula=pk)
-        
-        logs("log_pk",pk)
-        return render(request,"coche/info.html",{"provincia":lista_fuc(PROVINCE_CHOICES),"usuario":Usuario.objects.all(),"coche":coche})
 
 
-def prueba_csv(request):
-    template = "coches/prueba_csv.html"
-    data = Coche.objects.all()
-    
-    # GET request returns the value of the data with the specified key.
-    if request.method == "GET":
+#CSV
+import csv, io
+from django.shortcuts import render
+from django.contrib import messages
+class Add(View):
+
+    def get(self,request):
         usuario=Usuario.objects.all()
-        return render(request, template,{"usuario":usuario,'order': 'El orden debe ser matrícula, marca, modelo, precio, descuento, localización, tipo, kilómetros, fecha_matriculación, potencia, garantía, puertas, cambio, imagen, descripción','profiles': data  }) 
+        marca=Marca.objects.all()
+        modelo=Modelo.objects.all()
+        tipos=TiposCoches.objects.all()
+        form=AñadirCoche
+        fecha=datetime.now().strftime('%Y-%m-%d') 
+
+
+        return render(request, "coche/add.html",{"usuario":usuario,"form":form,"marca":marca,"modelo":modelo,"fecha":fecha,"tipos":tipos})
     
-    csv_file = request.FILES['file']    # let's check if it is a csv file
-
-    if not csv_file.name.endswith('.csv'):
-        messages.error(request, 'THIS IS NOT A CSV FILE')
-        return render(request, template)
-    else:
-        datos=request.POST
-        usuario_devuelve=datos['usu']
-        logs('log_usuario', usuario_devuelve)
-        lista=list()
-        lectura=request.FILES['file'].read().decode("utf-8")
-        f=open("mi_fichero.csv","w")
-        f.write(lectura)
-        f.close()
-        lista=list()
-        leer=lectura
-        leer2=leer.split("\n")
-        leer3=leer.split(";")
-        logs("log_leer",str(leer)+' - '+str(leer2)+' - '+str(leer3))
-        with open("mi_fichero.csv") as csvfile:
-            logs("log_tipo_de_archivo",type(csvfile))
-            reader=csv.DictReader(csvfile,delimiter=";")
-            for i in reader:
-                logs("log_ver_tipo_variable",type(reader))
-                lista.append(i)
-                logs("logs_csv_prueba2",i)
-            logs("logs_lista",lista)
+    def post(self,request):
+        usuario=Usuario.objects.all()
+        marca=Marca.objects.all()
+        modelo=Modelo.objects.all()
+        tipos=TiposCoches.objects.all()
+        form=AñadirCoche
+        fecha=datetime.now().strftime('%Y-%m-%d') 
         
-        """reader=csv.DictReader(leer,delimiter=";")
-        for i in reader:
-            logs("log_ver_tipo_variable",type(reader))
-            lista.append(i)
-            logs("logs_csv_prueba2",i)
-        logs("logs_csv_prueba",type(request.FILES['file'].read().decode()))
-        logs("logs_csv_3",leer)
-        logs("logs_lista",lista)"""
-        
-        #logs("log_prueba",csv_file.read())
-        dic=dict()
-        lectura=request.FILES['file'].read().decode("utf-8")
-        csv2=csv.DictReader(lectura,delimiter=";")
-        for i in csv2:
-            dic.update(i)
-        logs("logs_dic_copy",dic)
-        
-        data_set = csv_file.read().decode('UTF-8')    
-        
-        # setup a stream which is when we loop through each line we are able to handle a data in a stream
-        io_string = io.StringIO(data_set)
-        next(io_string)
-        for column in csv.reader(io_string, delimiter=',', quotechar="|"):
-            _, created = Coche.objects.update_or_create(
-                matricula=column[0],
-                #modelo__marca=column[1],
-                modelo=column[2],
-                precio_original=column[3],
-                descuento=column[4],
-                localiacion=column[5],
-                tipo=column[6],
-                kilometros=column[7],
-                fecha_matriculacion=column[8],
-                potencia=column[9],
-                garantia=column[10],
-                puertas=column[11],
-                cambio=column[12],
-                imagen=column[13],
-                descripcion=column[14],
-            )
-        context = {}
-        return render(request, template, context,{"usuario":usuario,})
 
+        if request.method=='POST':
+            datos=request.POST
+            logs("log_keys_datos",datos.keys())
+            if "matricula" not in datos.keys():
+                if request.FILES["file"].name=="coche.csv":
+                    
+                    leer_split2=list()
+                    keys=list()
+                    resultado=list()
+                    dic_suport=dict()
+                    
+                    a,b = 'áéíóúüñÁÉÍÓÚÜÑ','aeiouunAEIOUUN'
+                    trans = str.maketrans(a,b)
+                    leer=request.FILES["file"].read().decode("utf-8").translate(trans).lower()
+                    leer_split1=leer.split("\r\n")
+                    f=open(f"coche_{datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}_{datos['usu']}.csv","w")
+                    f.write(leer)
+                    f.close()
+                    
+                            
+                    for i in leer_split1:
+                        leer_split2.append(i.split(";"))
+                    for key in leer_split2[0]:                        
+                        keys.append(key)
+                        logs("log_keys", keys)
+                    leer_split2.pop(0)
+                    resultado_validacion=keys_comprobacion_csv(keys,leer_split2)
+                    diccionario_resultado=dict()
+                    
+                    contar=0
+                    if resultado_validacion[0]:
+                        diccionario_resultado=resultado_validacion[2]
+                        a,b = 'aeiouunAEIOUUN','áéíóúüñÁÉÍÓÚÜÑ'
+                        trans2 = str.maketrans(a,b)
+                        logs("logs_diccionario_resultado", diccionario_resultado)
+                        
+                        for dic in diccionario_resultado:
+                            
+                            contar=contar+1
+                            try:
+                                
+                                if Marca.objects.filter(nombre=dic["marca"]).exists() or Marca.objects.filter(nombre=dic["marca"].title()).exists() or Marca.objects.filter(nombre=dic["marca"].upper()).exists():
+                                    logs("logs_cuentamarcas",dic)
+                                    logs("log_bool_modelo",str(contar)+str(Modelo.objects.filter(nombre=dic["modelo"].title()).exists()))
+                                    if not Modelo.objects.filter(nombre=dic["modelo"]).exists() and not Modelo.objects.filter(nombre=dic["modelo"].title()).exists() and not Modelo.objects.filter(nombre=dic["modelo"].upper()).exists():
+                                        logs("logs_punto1","1")
 
+                                        marca_objeto=Marca.objects.get(nombre=dic["marca"].title())
 
+                                        if not marca_objeto:
+                                            marca_objeto=Marca.objects.get(nombre=dic["marca"].upper())
+                                        if not marca_objeto:
+                                             marca_objeto=Marca.objects.get(nombre=dic["marca"])
+                                        
+                                        modelo_obj = Modelo.objects.create(
+                                        nombre=dic["modelo"].title(),
+                                        marca=marca_objeto,
+                                        )
+                                    else:
+                                        logs("logs_modelos_quiero_terminar",dic["modelo"].capitalize())
+                                        modelo_obj=Modelo.objects.get(nombre=dic["modelo"].title())
+                                        if not modelo_obj:
+                                            
+                                            modelo_obj=Modelo.objects.get(nombre=dic["modelo"].upper())
+                                        if not modelo_obj:
+                                            modelo_obj=Modelo.objects.get(nombre=dic["modelo"])
+                                        
+                                        
+                                    
+                                    tipo_obj=TiposCoches.objects.get(tipo=dic["tipo"].title())
+                                    if not tipo_obj:
+                                        tipo_obj=TiposCoches.objects.get(nombre=dic["tipo"])
+                                    localizacion_para_crear=choices_search(dic["localizacion"].title().translate(trans),PROVINCE_CHOICES)
+                                    garantia_para_crear=choices_search(dic["garantia"].replace("m","M"),GARANTIA_CHOICES)
+                                    puertas_para_crear=choices_search(str(dic["puertas"]).title(),PUERTAS_CHOICES)
+                                    cambio_para_crear=choices_search(dic["cambio"].title(),CAMBIO_CHOICES)
+                                    if not dic["imagen"]:
+                                        dic["imagen"]="coche/sinimagen.jpg"
+                                    if localizacion_para_crear and garantia_para_crear and puertas_para_crear and cambio_para_crear:
+                                        
+                                        coche_objeto = Coche.objects.create(
+                                            matricula=dic["matricula"],
+                                            modelo=modelo_obj,
+                                            precio_original=dic["precio"],
+                                            descuento=dic["descuento"],
+                                            localizacion=localizacion_para_crear,
+                                            tipo=tipo_obj,
+                                            kilometros=dic["kilometros"],
+                                            fecha_matriculacion=dic["fecha matriculacion"],
+                                            potencia=dic["potencia"],
+                                            descripcion=dic["descripcion"],
+                                            garantia=garantia_para_crear,
+                                            puertas=puertas_para_crear,
+                                            cambio=cambio_para_crear,
+                                            imagen=dic["imagen"],
+                                        )
+                                    else:
+                                        if not localizacion_para_crear:
+                                            resultado_validacion[1].append(
+                                                f"La localización esta incorrecta en la linea {contar}"
+                                            )
+                                        elif not garantia_para_crear:
+                                            resultado_validacion[1].append(
+                                                f"La garantía esta incorrecta en la linea {contar}"
+                                            )
+                                        elif not puertas_para_crear:
+                                            resultado_validacion[1].append(f"La puerta esta incorrecta en la linea {contar}")
+                                        elif not cambio_para_crear:
+                                            resultado_validacion[1].append(f"El cambio esta incorrecto en la linea {contar}")
+                                else:
+                                    resultado_validacion[1].append(
+                                        f"La marca {dic['marca']} no existe.")
+                            except Exception as e:
+                                resultado_validacion[1].append(
+                                        f"Error inesperado en la linea {contar} con el error {e}")
 
+                       
+                        
+                        
+
+                    
+                    return render(request, "coche/add.html",{"errores":resultado_validacion[1],"usuario":usuario,"form":form,"marca":marca,"modelo":modelo,"fecha":fecha,"tipos":tipos, "diccionario_values": diccionario_resultado})
+                elif request.FILES:
+                    lista_no_csv=list()
+                    if request.FILES["file"].name.endswith("csv"):
+                        
+                        lista_no_csv.append("El archivo no es un csv")
+                    else:
+                        lista_no_csv.append("El nombre del archivo no es correcto. Debe ser coche.csv")
+                    return render(request, "coche/add.html",{"errores":lista_no_csv,"usuario":usuario,"form":form,"marca":marca,"modelo":modelo,"fecha":fecha,"tipos":tipos})
+            else:
+                datos=request.POST
+                logs('log_datos', datos)
+                #creamos una lista que contendrá el resultado de las validaciones para poder comprobar posteriormente si todas han sido correctas
+                validaciones=[]
+                #creamos una lista a la que le vamos añadiendo los distintos errores para poder mostrarlos luego al usuario.
+                errores=[]
+
+                matricula=datos['matricula']
+                validaciones.append(validarMatricula(matricula))
+                if not (validarMatricula(matricula)):
+                    errores.append("El campo de la matrícula no se rellenó correctamente o ya está incluida en la base de datos.")
+                
+                modelo=datos['modeloselect']
+                if modelo=="default":
+                    validaciones.append(False)
+                    errores.append("Debe seleccionar un modelo")
+                else:
+                    model=Modelo.objects.get(nombre=modelo)
+                
+                tipo=datos['tipo']
+                if tipo=="default":
+                    validaciones.append(False)
+                    errores.append("Debe seleccionar un tipo")
+                else:
+                    tip=TiposCoches.objects.get(tipo=tipo)
+                
+                fecha_matriculacion=datos['fecha_matriculacion']
+                descripcion=datos['descripcion']
+
+                localizacion=datos['localizacion']
+                if not localizacion.isdigit():
+                    #controlamos aquí que ha seleccionado algún campo(al igual que en todos los choices)
+                    validaciones.append(False)
+                    errores.append("Debe seleccionar una localidad")
+
+                kilometros= datos['kilometros']
+                validaciones.append(validarKilometros(kilometros))
+                if not validarKilometros(kilometros):
+                    errores.append("El campo kilómetros no tiene un valor correcto")
+
+                potencia=datos['potencia']
+                validaciones.append(validarPotencia(potencia))
+                if not validarPotencia(potencia):
+                    errores.append("El campo potencia no es correcto")
+
+                cambio=datos['cambio']
+                if not cambio.isdigit():
+                    validaciones.append(False)
+                    errores.append("Debe seleccionar un tipo de cambio")
+                
+                garantia=datos['garantia']
+                if not garantia.isdigit():
+                    validaciones.append(False)
+                    errores.append("Debe seleccionar un tipo de garantia")
+                
+                puertas=datos['puertas']
+                if not garantia.isdigit():
+                    validaciones.append(False)
+                    errores.append("Debe seleccionar las puertas")
+
+                precio=datos['precio_original']
+                validaciones.append(validarPrecio(precio))
+                if not validarPrecio(precio):
+                    errores.append("El campo precio no es correcto")
+
+                descuento=datos['descuento']
+                validaciones.append(validarDescuento(descuento))
+                if not validarDescuento(descuento):
+                    errores.append("El campo precio no es correcto")
+                
+
+                imagen=datos['imagen']
+                if imagen=="":
+                    imagen="coche/sinimagen.jpg"
+
+                if False in validaciones:
+
+                    return render(request, "coche/add.html",{"errores":errores,"usuario":usuario,"form":form,"marca":marca,"modelo":modelo,"fecha":fecha,"tipos":tipos})
+
+                else:
+                    logs("validaciones",str(validaciones))
+                    Coche.objects.create(matricula=matricula, modelo=model, precio_original=precio, 
+                        descuento=descuento,localizacion=localizacion,tipo=tip, kilometros=kilometros,
+                        fecha_matriculacion=fecha_matriculacion,potencia=potencia,descripcion=descripcion,
+                        garantia=garantia,puertas=puertas, cambio=cambio,imagen=imagen )
+
+                    success_url = reverse_lazy('app_automoviles:inicio')
+                    return HttpResponseRedirect(success_url)
+
+    
 
 #comprobamos tamaño matricula
 #comprobamos que son cuatro numeros y tres letras
 #comprobamos que la matricula no existe ya 
 #si todo es correcto devolvemos true
+
 def validarMatricula(matricula):
 
     if len(matricula)==7:
@@ -402,24 +485,68 @@ def validarDescuento(descuento):
         return True 
     else:
         return False
-    
-def logs(file="log",mensaje=""):
-    escribir = open(file, "a")
-    escribir.write(mensaje+"\n")
-    escribir.close()
-
-def choices_search(search="",lista_choise=list()):  
-    if search=="":
-        return ""
-    for i in lista_choise:
-        if i[1]==search:
-            return i[0]
-
-def lista_fuc(lista=list()):
-    lista=list(lista)
-    lista_datos=list()
-    for i in range(len(lista)):
-        lista_datos.append(lista[i][1])
+#Comprobaciones csv_file
+def keys_comprobacion_csv(keys,lista):
+    verificacion=True
+    mensaje=list()
+    lista_dic=dict()
+    if len(keys)==15:
+        for keys_comprobacion_number in range(len(KEY_CHOICES)):
+            if KEY_CHOICES[keys_comprobacion_number] != keys[keys_comprobacion_number]:
+                verificacion=False
+                mensaje.append("En el encabezado hay una palabra que no coincide con:")
+                mensaje.append("matrícula, marca, modelo, precio, descuento, localización, tipo, kilómetros, fecha matriculación, potencia, garantía, puertas, cambio, imagen, descripción")
+                break
+    elif len(keys)>15:
+        verificacion=False
+        mensaje.append("El encabezado tiene más valores de lo normal")
+    elif len(keys)<15:
+        verificacion=False
+        mensaje.append("El encabezado tiene menos valores de lo normal")
+    if verificacion:
+        for i in range(len(lista[:-1])):
+            
+            if len(keys)!=len(lista[i]):
+                verificacion=False
+                mensaje.append("Hubo un error en la linea: "+str(i+1))
+    # Poner lista de lineas y ponerlo separado por comasn en el mensaje
+    if verificacion:
+        lista_dic=diccionario( lista[:-1], keys)
+        logs("log_lista_dic", len(lista_dic))
+        for i in range(len(lista_dic)):
+            if not validarMatricula(lista_dic[i]["matricula"]):
+                verificacion=False
+                mensaje.append(f"Matricula: {lista_dic[i]['matricula']} no es correcta\n")
+            if not validarKilometros(lista_dic[i]["kilometros"]):
+                verificacion=False
+                mensaje.append(f"Kilometros: {lista_dic[i]['kilometros']} no es correcta\n")
+            if not validarPotencia(lista_dic[i]["potencia"]):
+                verificacion=False
+                mensaje.append(f"Potencia: {lista_dic[i]['potencia']} no es correcta\n")
+            if not validarPrecio(lista_dic[i]["precio"]):
+                verificacion=False
+                mensaje.append(f"Precio: {lista_dic[i]['precio']} no es correcta\n")
+            if not validarDescuento(lista_dic[i]["descuento"]):
+                verificacion=False
+                mensaje.append(f"Descuento: {lista_dic[i]['descuento']} no es correcta\n")
+        # Poner sistemas de lineas de error 
+    logs("log_verificacion",mensaje)
+    return [verificacion,mensaje,lista_dic]
         
-    lista_tupla=tuple(lista_datos)
-    return lista_tupla
+        
+    
+def diccionario( leer_split2, keys):
+    dic_suport=dict()
+    resultado=list()
+    logs("logs_split2",leer_split2)
+    for i in leer_split2:
+        if len(keys)==len(i):
+            
+                for number in range(len(keys)):                                        
+                    logs("log_number",keys)
+                    logs("log_number2", number)
+                    dic_suport[keys[number]]=i[number]
+                                        
+                resultado.append(dic_suport.copy())
+    logs("log_resultado", resultado)
+    return resultado

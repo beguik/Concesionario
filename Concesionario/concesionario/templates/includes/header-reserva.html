@@ -12,7 +12,7 @@
                 {% if user.is_authenticated %}
                     <ul class="menu vertical">
                         <li class="menu-text">{{user.username}}</li>
-                        <li><a href="#">Mis reservas</a></li>
+                        <li><a href="{% url 'app_administracion:reservas' %}">Mis reservas</a></li>
                         <li><a href="{% url 'app_usuarios:logout' %}">Cerrar Sesión</a></li>
                     </ul>
                 {% else %}

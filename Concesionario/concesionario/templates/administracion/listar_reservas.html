@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Coches reservados{% endblock %}
+
+
+
+{% block head %}
+
+    {% if user.is_authenticated %}
+        {% for usu in usuario %}
+            {% if usu.usuario.username == user.username %}
+                {% if usu.concesionario == null %}
+                    {% include 'includes/header-reserva.html' %}
+                {% else %}
+                    {% include 'includes/header-conce.html' %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+
+        {% if user.is_staff %}
+            {% include 'includes/header-admin.html' %}
+        {% endif %}
+
+    {% else %}
+        {% include 'includes/header-base.html' %}
+    {% endif %}
+
+{% endblock head %}
+
+{% block content %}
+{% for r in reservas %}
+
+{% if r.usuario.usuario.username == user.username %}
+  <table style="border:0px; width:60%; margin-left:20%" >  
+    <tr> 
+      <th style="width:25%; text-align:left;background-color:#ffffff">
+        <table style="border-radius:5px">
+          <tr>
+            <th colspan="2"style="width:70%; background-color:#cdcdcd;">{{r.coche.modelo.marca| upper }} - {{r.coche.modelo}}</th>
+            
+          </tr>
+
+         
+          
+          <th rowspan="5" style="width:30%; background-color:#ffffff"><img class="responsive" src={{r.coche.imagen.url}} style="width:100%"></th>
+
+          <tr style="background-color:#ffffff">
+            <td> <b>Kilómetros: </b>{{r.coche.kilometros|floatformat:0|intcomma}} Km</td>            
+          </tr>
+
+          <tr>
+            <td style="background-color:#ffffff"><b>Año Matriculación: </b> {{r.coche.fecha_matriculacion| date:'Y'}}</td>
+            
+          </tr>
+          <tr>
+            {% if r.coche.descuento == 0 %}
+            <td style="background-color:#ffffff"><b>Precio Final: {{r.coche.precio_final|floatformat:0|intcomma}}€</b></td>
+            {% else %}
+            <td style="background-color:#ffffff"><b>Precio Final: {{r.coche.precio_final|floatformat:0|intcomma}}€</b> // Descuento: {{r.coche.descuento|floatformat:0|intcomma}}% // Precio Original: {{r.coche.precio_original|floatformat:0|intcomma}}€</td>
+            {% endif %}           
+          </tr>
+          <tr>
+            <td style="background-color:#ffffff"><b>Fin de la reserva: </b>{{r.fecha_fin_reserva}}</td>
+          </tr>
+          <tr>
+            <td  style="background-color:#ffffff; margin-left: 50%;">
+              <button rowspan="4"class="success button" style="border-radius:5px; width:50%; margin-left: 130%;">Ver</button>
+            </td>
+          </tr>
+        </table>
+
+      </th>
+    </tr>
+    
+    
+     
+   </table>
+{% endif %}
+  
+  
+{% endfor %}
+  
+<table style="border:0px; width:60%; margin-left:20%" >  
+      
+    {% for r in resultado %}
+    {% if r.reservado %}
+    <tr> 
+      <th style="width:25%; text-align:left;background-color:#ffffff">
+        <table style="border-radius:5px">
+          <tr>
+            <th colspan="2"style="width:70%; background-color:#cdcdcd;">{{r.modelo.marca| upper }}- {{r.modelo}}</th>
+
+          </tr>
+          
+          <th rowspan="5" style="width:30%; background-color:#ffffff"><img class="responsive" src={{r.imagen.url}} style="width:100%"></th>
+
+          <tr style="background-color:#ffffff">
+            <td>  Kilómetros: {{r.kilometros|floatformat:0|intcomma}} Km</td>            
+          </tr>
+
+          <tr>
+            <td style="background-color:#ffffff"> Año Matriculación: {{r.fecha_matriculacion| date:'Y'}}</td>
+            
+          </tr>
+          <tr>
+            {% if r.descuento == 0 %}
+            <td style="background-color:#ffffff"><b>Precio Final: {{r.precio_final|floatformat:0|intcomma}}€</b></td>
+            {% else %}
+            <td style="background-color:#ffffff"><b>Precio Final: {{r.precio_final|floatformat:0|intcomma}}€</b> // Descuento: {{r.descuento|floatformat:0|intcomma}}% // Precio Original: {{r.precio_original|floatformat:0|intcomma}}€</td>
+            {% endif %}           
+          </tr>
+          <tr>
+            <td  style="background-color:#ffffff; margin-left: 50%;">
+              <button rowspan="4"class="success button" style="border-radius:5px; width:50%; margin-left: 20%;">Ver</button>
+            </td>
+          </tr>
+        </table>
+
+      </th>
+    </tr>
+    {% endif %}
+     {% endfor %}
+     
+   </table>
+
+{% endblock content %}

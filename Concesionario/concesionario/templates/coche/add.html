@@ -29,30 +29,44 @@
 
 {% block content %}
 <div style="width: 60%; margin: auto;">
-    <div style="float:left;">
-        Selecione un archivo para elegir una carga automática
-    </div>
-    <div style="float:right;">
-        <input type="file">
-    </div >
+    
+    
+        
+    <form action="" method="POST" enctype="multipart/form-data">{% csrf_token %}
+    {% for u in usuario %}
+        {% if u.usuario.username == user.username %}
+            <input type='hidden' value='{{u.dni}}' name="usu">
+        {% elif user.is_staff %}
+            <input type='hidden' value='{{user.username}}' name="usu">
+        {% endif %}
+    {% endfor %}
+        <label for="file1">Añadir archivo</label>
+        <input type="file" id="file" name="file">
+        <button type="submit"class="success button">Cargar el csv</button>
 
         <hr/>
         <p style="text-align:center">Rellene el siguiente formulario para proceder a una carga manual</p>
-
+    </form>
 </div>
 <center>
 {% for e in errores %}
        <h6 style="font-size:10; color:red"> {{e}} <br/></h6>   
     {% endfor %}
+    
+    {% if diccionario_values %}
+        <h5>{{diccionario_values}}</h5>
+    {% endif %}
+
 </center>
+
 <div id="annadir" class="card" style="width: 75%; margin: auto; margin-top: 3%; border-radius:15px; border: solid 2px #919191; padding: 20px;">
 
      
 
 <form action="" enctype="multipart/form-data" method="POST">
                 {%csrf_token %}
-	<table width="60%">
-		<tr>
+    <table width="60%">
+        <tr>
             <td width="20%"> Matrícula: {{form.matricula}}
                 <span id="errorMatricula" style="font-size:10px; color: #FF0000;"></span>
             </td> 
@@ -117,7 +131,7 @@
             <td colspan="5" style="text-align:center"><button class="success button" style="border-radius:5px; width:100%; " type="submit">Añadir</button></td>
         </tr>
             
-	</table>
+    </table>
 
 </form>
 </div>
